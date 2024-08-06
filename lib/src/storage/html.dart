@@ -6,6 +6,7 @@ import '../value.dart';
 
 class StorageImpl {
   StorageImpl(this.fileName, [this.path]);
+
   web.Storage get localStorage => web.window.localStorage;
 
   final String? path;
@@ -21,7 +22,7 @@ class StorageImpl {
   }
 
   Future<bool> _exists() async {
-    return localStorage.containsKey(fileName) ?? false;
+    return localStorage.containsKey(fileName);
   }
 
   Future<void> flush() async {
