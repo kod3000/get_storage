@@ -15,13 +15,13 @@ class StorageImpl {
       ValueStorage<Map<String, dynamic>>(<String, dynamic>{});
 
   void clear() {
-    localStorage.remove(fileName);
+    localStorage.removeItem(fileName);
     subject.value?.clear();
-    subject?.changeValue("", null);
+    subject.changeValue("", null);
   }
 
   Future<bool> _exists() async {
-    return localStorage.containsKey(fileName);
+    return localStorage.containsKey(fileName) ?? false;
   }
 
   Future<void> flush() async {
