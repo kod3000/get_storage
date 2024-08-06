@@ -21,7 +21,7 @@ class StorageImpl {
   }
 
   Future<bool> _exists() async {
-    return localStorage.containsKey(fileName) ?? false;
+    return localStorage[fileName] != null;
   }
 
   Future<void> flush() async {
@@ -62,18 +62,13 @@ class StorageImpl {
   }
 
   Future<void> _writeToStorage(Map<String, dynamic> data) async {
-    localStorage.update(fileName, (val) => json.encode(data),
-        ifAbsent: () => json.encode(data));
+    localStorage[fileName] = json.encode(data);
   }
 
   Future<void> _readFromStorage() async {
-    final dataFromLocal = localStorage.entries.firstWhereOrNull(
-      (value) {
-        return value.key == fileName;
-      },
-    );
+    final dataFromLocal = localStorage[fileName];
     if (dataFromLocal != null) {
-      subject.value = json.decode(dataFromLocal.value) as Map<String, dynamic>;
+      subject.value = json.decode(dataFromLocal) as Map<String, dynamic>;
     } else {
       await _writeToStorage(<String, dynamic>{});
     }
