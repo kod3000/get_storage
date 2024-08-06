@@ -16,8 +16,8 @@ class StorageImpl {
 
   void clear() {
     localStorage.remove(fileName);
-    subject.value.clear();
-    subject..changeValue("", null);
+    subject.value?.clear();
+    subject?.changeValue("", null);
   }
 
   Future<bool> _exists() async {
@@ -25,19 +25,19 @@ class StorageImpl {
   }
 
   Future<void> flush() async {
-    await _writeToStorage(subject.value);
+    await _writeToStorage(subject.value ?? <String, dynamic>{});
   }
 
   T? read<T>(String key) {
-    return subject.value[key] as T?;
+    return subject.value?[key] as T?;
   }
 
   List<String> getKeys() {
-    return subject.value.keys.toList();
+    return subject.value?.keys.toList() ?? [];
   }
 
   List<dynamic> getValues() {
-    return subject.value.values.toList();
+    return subject.value?.values.toList() ?? [];
   }
 
   Future<void> init([Map<String, dynamic>? initialData]) async {
@@ -45,23 +45,25 @@ class StorageImpl {
     if (await _exists()) {
       await _readFromStorage();
     } else {
-      await _writeToStorage(subject.value);
+      await _writeToStorage(subject.value ?? <String, dynamic>{});
     }
   }
 
   void remove(String key) {
-    subject..value.remove(key)..changeValue(key, null);
+    subject.value?.remove(key);
+    subject.changeValue(key, null);
     flush();
   }
 
   void write(String key, dynamic value) {
-    subject..value[key] = value..changeValue(key, value);
+    subject.value?[key] = value;
+    subject.changeValue(key, value);
     flush();
   }
 
   Future<void> _writeToStorage(Map<String, dynamic> data) async {
-    localStorage.update(fileName, (val) => json.encode(subject.value),
-        ifAbsent: () => json.encode(subject.value));
+    localStorage.update(fileName, (val) => json.encode(data),
+        ifAbsent: () => json.encode(data));
   }
 
   Future<void> _readFromStorage() async {
