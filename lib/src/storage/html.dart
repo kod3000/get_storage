@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import '../value.dart';
 
 class StorageImpl {
   StorageImpl(this.fileName, [this.path]);
-  html.Storage get localStorage => html.window.localStorage;
+  web.Storage get localStorage => web.window.localStorage;
 
   final String? path;
   final String fileName;
@@ -17,30 +17,27 @@ class StorageImpl {
   void clear() {
     localStorage.remove(fileName);
     subject.value.clear();
-
-    subject
-      ..value.clear()
-      ..changeValue("", null);
+    subject..changeValue("", null);
   }
 
   Future<bool> _exists() async {
     return localStorage.containsKey(fileName);
   }
 
-  Future<void> flush() {
-    return _writeToStorage(subject.value);
+  Future<void> flush() async {
+    await _writeToStorage(subject.value);
   }
 
   T? read<T>(String key) {
     return subject.value[key] as T?;
   }
 
-  T getKeys<T>() {
-    return subject.value.keys as T;
+  List<String> getKeys() {
+    return subject.value.keys.toList();
   }
 
-  T getValues<T>() {
-    return subject.value.values as T;
+  List<dynamic> getValues() {
+    return subject.value.values.toList();
   }
 
   Future<void> init([Map<String, dynamic>? initialData]) async {
@@ -50,26 +47,17 @@ class StorageImpl {
     } else {
       await _writeToStorage(subject.value);
     }
-    return;
   }
 
   void remove(String key) {
-    subject
-      ..value.remove(key)
-      ..changeValue(key, null);
-    //  return _writeToStorage(subject.value);
+    subject..value.remove(key)..changeValue(key, null);
+    flush();
   }
 
   void write(String key, dynamic value) {
-    subject
-      ..value[key] = value
-      ..changeValue(key, value);
-    //return _writeToStorage(subject.value);
+    subject..value[key] = value..changeValue(key, value);
+    flush();
   }
-
-  // void writeInMemory(String key, dynamic value) {
-
-  // }
 
   Future<void> _writeToStorage(Map<String, dynamic> data) async {
     localStorage.update(fileName, (val) => json.encode(subject.value),
