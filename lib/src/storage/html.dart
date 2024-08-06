@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
-import 'package:web/web.dart' as web;
+import 'dart:html' as web;
 import '../value.dart';
 
 class StorageImpl {
@@ -21,7 +21,7 @@ class StorageImpl {
   }
 
   Future<bool> _exists() async {
-    return localStorage[fileName] != null;
+    return localStorage.containsKey(fileName) ?? false;
   }
 
   Future<void> flush() async {
