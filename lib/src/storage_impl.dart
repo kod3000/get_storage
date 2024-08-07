@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:get/utils.dart';
 
@@ -55,11 +55,11 @@ class GetStorage {
     return _concrete.read(key);
   }
 
-  T getKeys<T>() {
+  List<String> getKeys() {
     return _concrete.getKeys();
   }
 
-  T getValues<T>() {
+  List<dynamic> getValues() {
     return _concrete.getValues();
   }
 
@@ -88,22 +88,9 @@ class GetStorage {
     return _concrete.subject.addListener(listen);
   }
 
-  // /// Remove listen of your container
-  // void removeKeyListen(Function(Map<String, dynamic>) callback) {
-  //   _concrete.subject.removeListener(_keyListeners[callback]);
-  // }
-
-  // /// Remove listen of your container
-  // void removeListen(void Function() listener) {
-  //   _concrete.subject.removeListener(listener);
-  // }
-
   /// Write data on your container
   Future<void> write(String key, dynamic value) async {
     writeInMemory(key, value);
-    // final _encoded = json.encode(value);
-    // await _concrete.write(key, json.decode(_encoded));
-
     return _tryFlush();
   }
 
@@ -161,6 +148,68 @@ class GetStorage {
   late Future<bool> initStorage;
 
   Map<String, dynamic>? _initialData;
+}
+
+class StorageImpl {
+  StorageImpl(this.fileName, [this.path]);
+
+  final String? path;
+  final String fileName;
+
+  ValueStorage<Map<String, dynamic>> subject =
+      ValueStorage<Map<String, dynamic>>(<String, dynamic>{});
+
+  void clear() {
+    // This method will be implemented in platform-specific files (html.dart or io.dart)
+  }
+
+  Future<bool> _exists() async {
+    // This method will be implemented in platform-specific files (html.dart or io.dart)
+    return false;
+  }
+
+  Future<void> flush() async {
+    await _writeToStorage(subject.value ?? <String, dynamic>{});
+  }
+
+  T? read<T>(String key) {
+    return subject.value?[key] as T?;
+  }
+
+  List<String> getKeys() {
+    return subject.value?.keys.toList() ?? [];
+  }
+
+  List<dynamic> getValues() {
+    return subject.value?.values.toList() ?? [];
+  }
+
+  Future<void> init([Map<String, dynamic>? initialData]) async {
+    subject.value = initialData ?? <String, dynamic>{};
+    if (await _exists()) {
+      await _readFromStorage();
+    } else {
+      await _writeToStorage(subject.value ?? <String, dynamic>{});
+    }
+  }
+
+  void remove(String key) {
+    subject.value?.remove(key);
+    subject.changeValue(key, null);
+  }
+
+  void write(String key, dynamic value) {
+    subject.value?[key] = value;
+    subject.changeValue(key, value);
+  }
+
+  Future<void> _writeToStorage(Map<String, dynamic> data) async {
+    // This method will be implemented in platform-specific files (html.dart or io.dart)
+  }
+
+  Future<void> _readFromStorage() async {
+    // This method will be implemented in platform-specific files (html.dart or io.dart)
+  }
 }
 
 class Microtask {

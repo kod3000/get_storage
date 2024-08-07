@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-// ignore: avoid_web_libraries_in_flutter ....
-import 'dart:html' as web;
+import 'package:web/web.dart' as web;
 import '../value.dart';
 
 class StorageImpl {
@@ -22,7 +21,7 @@ class StorageImpl {
   }
 
   Future<bool> _exists() async {
-    return localStorage.containsKey(fileName);
+    return localStorage.getItem(fileName) != null;
   }
 
   Future<void> flush() async {
@@ -63,11 +62,11 @@ class StorageImpl {
   }
 
   Future<void> _writeToStorage(Map<String, dynamic> data) async {
-    localStorage[fileName] = json.encode(data);
+    localStorage.setItem(fileName, json.encode(data));
   }
 
   Future<void> _readFromStorage() async {
-    final dataFromLocal = localStorage[fileName];
+    final dataFromLocal = localStorage.getItem(fileName);
     if (dataFromLocal != null) {
       subject.value = json.decode(dataFromLocal) as Map<String, dynamic>;
     } else {
